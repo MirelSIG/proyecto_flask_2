@@ -41,7 +41,12 @@
 			"name": "POST",
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\"id\":\"BUC\", \"name\":\"Bucharest\", \"temperature\": 12, \"rain_probability\": 0.87}",
@@ -88,13 +93,18 @@
 			"response": []
 		},
 		{
-			"name": "PATCH",
+			"name": "PUT (update MNG)",
 			"request": {
-				"method": "PATCH",
-				"header": [],
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"temperature\": 20, \"rain_probability\": 0.14}",
+					"raw": "{\"id\":\"MNG\", \"name\":\"Managua\", \"temperature\": 20, \"rain_probability\": 0.14}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -161,7 +171,12 @@
 			"name": "PUT (update)",
 			"request": {
 				"method": "PUT",
-				"header": [],
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\"id\":\"BUC\", \"name\":\"Managua\", \"temperature\": 32, \"rain_probability\": 0.87}",
@@ -191,7 +206,7 @@
 		},
 		{
 			"key": "local_cities",
-			"value": "http://localhost:5000/cities"
+			"value": "http://127.0.0.1:5001/cities"
 		}
 	]
 }
