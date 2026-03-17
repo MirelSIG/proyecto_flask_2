@@ -7,11 +7,11 @@ def get_all_cities():
     return read_all()
 
 def post_city(new_city):
-    print(create(new_city))
+    return create(new_city)
 
-def update_city(update_city):
-    update(update_city)
+def update_city(city_id, update_city_data):
+    return update(city_id, update_city_data)
 
 def del_city(city_id):
-    delete(city_id)
+    return delete(city_id)
     
