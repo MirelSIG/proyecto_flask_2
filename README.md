@@ -1,183 +1,206 @@
+# Proyecto Flask 2: API Weather con SQLite
 
+Este proyecto implementa una API REST sencilla para gestionar ciudades y su clima usando Flask + SQLite.
 
-# Objetivos del proyecto
-###  Este proyecto de flask contiene la creacion de una API para facilitar informacion del tiempo, haciendo un CRUD, completo con una base de datos de SqLite
+## Quickstart (60 segundos)
 
-
-![Base de Datos Weather DB](./assets/imgReadme/python-flask-web-developer.jpg)
-
-
-Aparte de los objetivos aportados por el  proyecto_flask_1, anteriormente comentado, hay otros elementos especificos propios de una arquitectura mas amplia que reseñamos aqui
-
-
-La base de datos de weather.db se ha generado con una interfaz DB Browser, y esta es una captura de pantalla de su configuracion inicial
-
-![Base de Datos Weather DB](./assets/imgReadme/wheatherDB.png)
-
-#  - Mostrar las conexiones de la capa de gestion del CRUD de datos con una base de datos, en formato SQL
-En este cso se muestra tanto la variedad de **metodos** utilizados asi como la **sintaxis** que en cada caso se utiliza
-
-
-###  Facilitar material funciones y propuestas para realizar test con respecto a las funciones de gestion de la base de datos en SqLite
-
-
-
-
-##  Mostrar un archivo app.py con las funciones routes, que crean los endpoints y reciben las peticiones http
-Se envian las ordenes a traves de una segmentacion de funciones que se llaman entre si, en diferentes archivos
-
-
-
-
-
-
-
-
-
-
-# - Permitir utilizar una herramienta que permita testar las distintas peticiones para comprobar asi su fucionamiento y su eficacia de planificacion
- Comprobar a traves de Postman las peticiones que se hacen, añadiendo al body de la request los elementos propios de un POST o de un PUT
-
-- Peticion por GET recogiendo la respuesta del directorio raiz
-
-![Peticion HTTP](./assets/imgReadme/flask2_ruta_raiz.png)
-
----
-
-- Peticion por GET recogiendo todos los valores
-
-![Peticion HTTP](./assets/imgReadme/flask2_get_cities.png)
-
----
-
-- Peticion por GET recogiendo el valor de un elemento, a traves de un id, el de Managua MNA
-
-![Peticion HTTP](./assets/imgReadme/flask2_cities_get_id.png)
-
-
-
----
-- Peticion por POST mandando a traves del body de la peticion un nuevo elemento (NAR, aeropuerto de Narita, en Tokio)
-
-![Peticion HTTP](./assets/imgReadme/flask2_post_new.png)
-
----
-
-- Peticion por GET mostrando el resultado favorable de la inclusion por POST, de un nuevo elemento NAR
-
-![Peticion HTTP](./assets/imgReadme/flask2_getAll_new_citie.png)
-
----
-
-- Peticion por PUT  mandando a traves del body de la peticion un nuevo elemento (NAR, aeropuerto de Narita, en Tokio), modificando la temperatura a
-un valor de 133
-
-![Peticion HTTP](./assets/imgReadme/flask2_update.png)
-
----
-
-- Peticion por GET mostrando el resultado favorable de la actualizacion por PUT, de la temperatura del elemento NAR
-
-![Peticion HTTP](./assets/imgReadme/flask2_get_update_citie.png)
-
----
-
-
-
-- Peticion por DELETE  del borrado del elemento NAR
-
-![Peticion HTTP](./assets/imgReadme/flask2_delete_NRT.png)
-
----
-
-- Peticion por GET mostrando el resultado del borrado por DELETE del elemento NAR
-
-![Peticion HTTP](./assets/imgReadme/flask2_delete_getNRT.png)
-
----
-
-# - Mostrar como se utilizar el archivo requirements.txt para reseñar las dependencias utilizadads en el proyecto, respetando la sintaxis de escritura
-
-
-Crea requirements.txt con la lista de paquetes
-~~~
-python -m pip freeze > requirements.txt 
-~~~
-Incluye paquetes de python como pip,...
-~~~
-python -m pip freeze --all > requirements.txt 
-~~~
-Instala paquetes listados en requirements.txt
-~~~
+```bash
+git clone https://github.com/MirelSIG/proyecto_flask_2.git
+cd proyecto_flask_2
+virtualenv -p python3 myEnv
+source myEnv/bin/activate
 pip install -r requirements.txt
-~~~
+python3 app.py
+```
 
+Prueba rapida del backend:
 
+- Abre `http://127.0.0.1:5001`
+- Si quieres testear CRUD, importa en Postman el archivo `assets/pythonServer.postman_collection.json`
 
+Incluye:
 
+- Endpoints CRUD sobre `/cities`
+- Persistencia en base de datos local `weather.db`
+- Soporte CORS para consumir la API desde frontend o herramientas externas
+- Coleccion de Postman para pruebas manuales
 
+![Flask](./assets/imgReadme/python-flask-web-developer.jpg)
 
-# Requisitos de instalacion y puesta en marcha
-Una vez hecho git clone, es posible que en el equipo de destino sea necesario instalar el paquete de flask_cors, para que las importaciones de este proyecto se puedan utilizar en una maquina que ya lo tenga instalado
+## 1. Arquitectura del proyecto
 
+Flujo de capas:
 
-Para poder arrancar el servidor de desarrollo, el comando es mas preciso al nombrar la version mas completa
-~~~
-python3.10 app.py
-~~~
+1. `app.py`: punto de arranque del servidor
+2. `src/webserver.py`: define las rutas HTTP
+3. `src/weather.py`: capa de servicio
+4. `src/weather_repository_sqlite.py`: acceso SQL a `weather.db`
 
-Al mismo tiempo que se procesan las distintas instrucciones derivadas de los endpoints, ejecutando las funciones asociadas a los decoradores routes, los distintos efectos de los procesos se pueden observar en la linea de comandos. Son informacion de lo que estamos ejecutando y muchas veces indicacion del porque se producen determinados fallos
-E incluso contienen efectos buscados a traves de instrucciones print(), en las funciones de las distintas rutas, para hacer un sequimiento de los procesos desde la linea de comandos. Ejemplo: print ('**newcity', data),
+Estructura principal:
 
+```text
+proyecto_flask_2/
+├── app.py
+├── requirements.txt
+├── weather.db
+├── assets/
+│   └── pythonServer.postman_collection.json
+└── src/
+    ├── webserver.py
+    ├── weather.py
+    └── weather_repository_sqlite.py
+```
 
+## 2. Requisitos previos
 
+- Python 3
+- pip
+- virtualenv (recomendado)
+- Postman (opcional, para pruebas)
 
-# Resolver la incidencia de un puerto de conexion que se encuentra ocupado
-En ocasiones interesa saber cual es el PID (Identificador del proceso) que ha generado el puerto de conexion ocupado. Localizarlo, matar el proceso y liberar el puerto
-lsof -i:puerto enseña que proceso está usando este puerto
-~~~
-lsof-i:5000 
-~~~
+## 3. Instalacion paso a paso
 
-kill PID mata el proceso con ID => PID
-~~~
-kill 12345 
-~~~
+### 3.1 Clonar y entrar en el proyecto
 
-# CORS
-Para habilitar CORS en una aplicación Flask, puedes utilizar la extensión Flask-CORS. Aquí tienes los pasos para instalar y configurar Flask-CORS en tu aplicación:
+```bash
+git clone https://github.com/MirelSIG/proyecto_flask_2.git
+cd proyecto_flask_2
+```
 
-1. Instala Flask-CORS utilizando pip:
-   
-   ```
-   pip install flask-cors
-   ```
+### 3.2 Crear y activar entorno virtual
 
-2. Importa la extensión `CORS` en tu aplicación Flask:
+```bash
+virtualenv -p python3 myEnv
+source myEnv/bin/activate
+```
 
-   ```python
-   from flask import Flask
-   from flask_cors import CORS
-   ```
+### 3.3 Instalar dependencias
 
-3. Crea una instancia de tu aplicación Flask:
+Instalacion recomendada:
 
-   ```python
-   app = Flask(__name__)
-   ```
+```bash
+pip install -r requirements.txt
+```
 
-4. Configura Flask-CORS para habilitar CORS en tu aplicación:
+Si solo quieres resolver CORS rapido:
 
-   ```python
-   cors = CORS(app)
-   ```
+```bash
+pip install flask-cors
+```
 
-   Esto habilitará CORS en todos los endpoints de tu aplicación Flask con la configuración predeterminada. Si deseas personalizar las opciones de CORS, puedes hacerlo pasando parámetros adicionales a la instancia de `CORS`. Por ejemplo:
+## 4. Ejecutar el backend
 
-   ```python
-   cors = CORS(app, resources={r"/api/*": {"origins": "http://example.com"}})
-   ```
+Con el entorno virtual activo:
 
-   Aquí se configura CORS para permitir solo solicitudes desde `http://example.com` en cualquier endpoint que comience con `/api/`.
+```bash
+python3 app.py
+```
 
-Con estos pasos, tendrás CORS habilitado en tu aplicación Flask. Esto permitirá que las solicitudes AJAX desde dominios diferentes accedan a tu API. Asegúrate de entender y ajustar la configuración de CORS según tus necesidades de seguridad y acceso.
+El servidor arranca en:
+
+- `http://127.0.0.1:5001`
+
+Nota: en este proyecto el puerto configurado en `app.py` es `5001`.
+
+## 5. Endpoints de la API
+
+Base URL local:
+
+- `http://127.0.0.1:5001`
+
+Rutas disponibles:
+
+1. `GET /` devuelve un mensaje HTML de prueba
+2. `GET /cities` devuelve todas las ciudades
+3. `GET /cities/<city_id>` devuelve una ciudad por id
+4. `POST /cities` crea una ciudad
+5. `PUT /cities/<city_id>` actualiza una ciudad
+6. `DELETE /cities/<city_id>` elimina una ciudad
+
+Ejemplo de body JSON para `POST` y `PUT`:
+
+```json
+{
+  "id": "NAR",
+  "name": "Narita",
+  "temperature": 23,
+  "rain_probability": 0.45
+}
+```
+
+## 6. Probar con Postman
+
+1. Abre Postman
+2. Importa la coleccion: `assets/pythonServer.postman_collection.json`
+3. Ejecuta en orden recomendado:
+
+- `GET /`
+- `GET /cities`
+- `POST /cities`
+- `GET /cities/NAR`
+- `PUT /cities/NAR`
+- `DELETE /cities/NAR`
+- `GET /cities/NAR` (comprobar borrado)
+
+Capturas de referencia:
+
+![Ruta raiz](./assets/imgReadme/flask2_ruta_raiz.png)
+![GET cities](./assets/imgReadme/flask2_get_cities.png)
+![GET by id](./assets/imgReadme/flask2_cities_get_id.png)
+![POST city](./assets/imgReadme/flask2_post_new.png)
+![PUT city](./assets/imgReadme/flask2_update.png)
+![DELETE city](./assets/imgReadme/flask2_delete_NRT.png)
+
+## 7. Base de datos SQLite
+
+La BD local se llama `weather.db` y contiene la tabla `cities`:
+
+- `id`
+- `name`
+- `temperature`
+- `rain_probability`
+
+La tabla se crea automaticamente si no existe al iniciar el repositorio SQLite.
+
+![DB Browser](./assets/imgReadme/wheatherDB.png)
+
+## 8. Tests
+
+Hay material de pruebas en `src/test_weather_repository_sqlite.py`.
+
+Para ejecutar tests (si aplica en tu entorno):
+
+```bash
+python -m pytest -q
+```
+
+## 9. Solucion de problemas comunes
+
+### Puerto ocupado
+
+Si el puerto esta en uso, identifica y finaliza el proceso:
+
+```bash
+lsof -i :5001
+kill <PID>
+```
+
+### Error de modulos no encontrados
+
+Verifica que el entorno virtual este activo e instala dependencias:
+
+```bash
+source myEnv/bin/activate
+pip install -r requirements.txt
+```
+
+## 10. CORS en Flask
+
+Este proyecto ya habilita CORS en `src/webserver.py` con:
+
+```python
+from flask_cors import CORS
+cors = CORS(app)
+```
+
+Con esto, clientes desde otros origenes (por ejemplo frontend en otro puerto) pueden consumir la API.
